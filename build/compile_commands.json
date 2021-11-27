@@ -1,0 +1,22 @@
+[
+{
+  "directory": "C:/Users/Helti/Desktop/Solver/build",
+  "command": "D:\\mingw64\\bin\\x86_64-w64-mingw32-g++.exe  @CMakeFiles/main.dir/includes_CXX.rsp -g -std=gnu++17 -o CMakeFiles\\main.dir\\main.cpp.obj -c C:\\Users\\Helti\\Desktop\\Solver\\main.cpp",
+  "file": "C:/Users/Helti/Desktop/Solver/main.cpp"
+},
+{
+  "directory": "C:/Users/Helti/Desktop/Solver/build",
+  "command": "D:\\mingw64\\bin\\x86_64-w64-mingw32-g++.exe  @CMakeFiles/main.dir/includes_CXX.rsp -g -std=gnu++17 -o CMakeFiles\\main.dir\\private\\graph.cpp.obj -c C:\\Users\\Helti\\Desktop\\Solver\\private\\graph.cpp",
+  "file": "C:/Users/Helti/Desktop/Solver/private/graph.cpp"
+},
+{
+  "directory": "C:/Users/Helti/Desktop/Solver/build",
+  "command": "D:\\mingw64\\bin\\x86_64-w64-mingw32-g++.exe  @CMakeFiles/main.dir/includes_CXX.rsp -g -std=gnu++17 -o CMakeFiles\\main.dir\\private\\solver.cpp.obj -c C:\\Users\\Helti\\Desktop\\Solver\\private\\solver.cpp",
+  "file": "C:/Users/Helti/Desktop/Solver/private/solver.cpp"
+},
+{
+  "directory": "C:/Users/Helti/Desktop/Solver/build",
+  "command": "D:\\mingw64\\bin\\x86_64-w64-mingw32-g++.exe  @CMakeFiles/main.dir/includes_CXX.rsp -g -std=gnu++17 -o CMakeFiles\\main.dir\\private\\tree.cpp.obj -c C:\\Users\\Helti\\Desktop\\Solver\\private\\tree.cpp",
+  "file": "C:/Users/Helti/Desktop/Solver/private/tree.cpp"
+}
+]

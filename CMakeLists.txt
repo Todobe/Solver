@@ -1,0 +1,7 @@
+project(Sovler)
+cmake_minimum_required(VERSION 3.20)
+CMAKE_MINIMUM_REQUIRED()
+set(CMAKE_CXX_STANDARD 17)
+include_directories(public)
+aux_source_directory(private PRITVATE)
+add_executable(main main.cpp ${PRITVATE})
