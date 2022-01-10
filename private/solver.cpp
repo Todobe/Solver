@@ -3,18 +3,22 @@
 #include <queue>
 #include <functional>
 
-void Simulation::simulate(std::mt19937& rng, const Graph& G, const std::set<int>& R, const std::set<int>& Z, int alpha, bool verbose) {
+Spread::Spread(int u,int v,int t,STATUS st):u(u),v(v),t(t),st(st){}
+
+void Simulation::simulate(std::mt19937& rng, const Graph& G, const std::set<int>& R, const std::set<int>& Z, int alpha, std::vector<Spread> &ret, bool verbose) {
     this->G = G;
     status.resize(G.V, INACTIVE);
     for (int x : R) {
         status[x] = RUMOR;
+        ret.emplace_back(-1,x,-1,RUMOR);
     }
     for (int x : Z) {
         status[x] = TRUTH;
+        ret.emplace_back(-1,x,-1,TRUTH);
     }
-    simulate(rng, this->G, this->G.spreaded, status, alpha, verbose);
+    simulate(rng, this->G, this->G.spreaded, status, alpha, ret, verbose);
 }
-void Simulation::simulate(std::mt19937& rng, Graph& G, std::vector<bool>& spreaded, std::vector<STATUS>& status, int alpha, bool verbose) {
+void Simulation::simulate(std::mt19937& rng, Graph& G, std::vector<bool>& spreaded, std::vector<STATUS>& status, int alpha, std::vector<Spread> &ret, bool verbose) {
     std::uniform_real_distribution urd;
     for (int time = 1; time <= alpha; time += 1) {
         std::vector<bool> logined(G.V);
@@ -31,6 +35,7 @@ void Simulation::simulate(std::mt19937& rng, Graph& G, std::vector<bool>& spread
                             std::cout << (s == RUMOR ? "Rumor" : "Truth") << " from " << u << " to " << v << " at " << time << std::endl;
                         }
                         status[v] = s;
+                        ret.emplace_back(u,v,time,s);
                     }
                 }
             }   
@@ -43,11 +48,11 @@ int Simulation::count(STATUS s) const {
 }
 
 
-double Phi::operator()(std::mt19937& rng, const Graph& G, const std::set<int>& R, const std::set<int>& Z, int alpha, int time) const {
+double Phi::operator()(std::mt19937& rng, const Graph& G, const std::set<int>& R, const std::set<int>& Z, int alpha, std::vector<Spread> &ret, int time) const {
     double res = 0;
     for (int i = 0; i < time; i += 1) {
         Simulation test;
-        test.simulate(rng, G, R, Z, alpha);
+        test.simulate(rng, G, R, Z, alpha, ret);
         res += test.count(RUMOR);
     }
     return res / time;
@@ -337,13 +342,14 @@ void MultiRoundSolver::solve(std::mt19937& rng, int k, int alpha) {
     }
 }
 
-void MultiRoundSolver::simulate(std::mt19937& rng, int alpha) {
+void MultiRoundSolver::simulate(std::mt19937& rng, int alpha, std::vector<Spread> &ret) {
     for (int u : Z) {
         if (status[u] == INACTIVE) {
             status[u] = TRUTH;
+            ret.emplace_back(-1,u,-1,TRUTH);
         }
     }
-    Simulation().simulate(rng, G, G.spreaded, status, alpha);
+    Simulation().simulate(rng, G, G.spreaded, status, alpha, ret);
 }
 
 int MultiRoundSolver::count(STATUS s) const {

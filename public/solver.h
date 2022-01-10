@@ -13,16 +13,22 @@ enum STATUS {
     TRUTH
 };
 
+struct Spread{
+    int u,v,t;
+    STATUS st;
+    Spread(int u,int v,int t,STATUS st);
+};
+
 struct Simulation {
     std::vector<STATUS> status;
     Graph G;
-    void simulate(std::mt19937& rng, const Graph& G, const std::set<int>& R, const std::set<int>& Z, int alpha, bool verbose = false);
-    void simulate(std::mt19937& rng, Graph& G, std::vector<bool>& spreaded, std::vector<STATUS>& status, int alpha, bool verbose = false);
+    void simulate(std::mt19937& rng, const Graph& G, const std::set<int>& R, const std::set<int>& Z, int alpha, std::vector<Spread> &ret, bool verbose = false);
+    void simulate(std::mt19937& rng, Graph& G, std::vector<bool>& spreaded, std::vector<STATUS>& status, int alpha, std::vector<Spread> &ret, bool verbose = false);
     int count(STATUS s) const;
 };
 
 struct Phi {
-    double operator()(std::mt19937& rng, const Graph& G, const std::set<int>& R, const std::set<int>& Z, int alpha, int time = 1000) const ;
+    double operator()(std::mt19937& rng, const Graph& G, const std::set<int>& R, const std::set<int>& Z, int alpha, std::vector<Spread> &ret, int time = 1000) const ;
 };
 
 struct Solver{
@@ -54,7 +60,7 @@ struct MultiRoundSolver : Solver {
     void solve(std::mt19937& rng, int k);
     void setRumor(int u);
     void solve(std::mt19937& rng, int k, int alpha);
-    void simulate(std::mt19937& rng, int alpha);
+    void simulate(std::mt19937& rng, int alpha, std::vector<Spread> &ret);
     int count(STATUS s) const;
 
     std::vector<STATUS> status;
