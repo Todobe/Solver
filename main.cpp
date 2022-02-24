@@ -2,10 +2,11 @@
 
 #include <iostream>
 #include <fstream>
+#include <functional>
 
 struct node{
-    int id,stamp,from;
-    node(int id, int stamp, int from):id(id),stamp(stamp),from(from){}
+    int id,stamp,from,order;
+    node(int id, int stamp, int from, int order):id(id),stamp(stamp),from(from),order(order){}
 };
 
 std::vector<node> block,truth,rumor;
@@ -18,9 +19,9 @@ void calc(const std::vector<Spread> &ret, const std::set<int> &Z, int t){
               if(!is_rumor[it.v]){
                   is_rumor[it.v]=true;
                   is_truth[it.v]=false;
-                  rumor.emplace_back(it.v,t,it.u);
+                  rumor.emplace_back(it.v,t,it.u,it.t);
                   if(it.u==-1){
-                      std::cout<<it.u<<" "<<it.v<<" "<<t<<std::endl;
+                      std::cout<<it.u<<" "<<it.v<<" "<<t<<" rumor"<<std::endl;
                   }
               }
               break;
@@ -28,9 +29,9 @@ void calc(const std::vector<Spread> &ret, const std::set<int> &Z, int t){
               if(!is_truth[it.v]){
                   is_truth[it.v]=true;
                   is_rumor[it.v]=false;
-                  truth.emplace_back(it.v,t,it.u);
+                  truth.emplace_back(it.v,t,it.u,it.t);
                   if(it.u==-1){
-                      std::cout<<it.u<<" "<<it.v<<" "<<t<<std::endl;
+                      std::cout<<it.u<<" "<<it.v<<" "<<t<<" truth"<<std::endl;
                   }
               }
               break;
@@ -42,7 +43,7 @@ void calc(const std::vector<Spread> &ret, const std::set<int> &Z, int t){
     for(auto x: Z){
         if(!is_block[x]){
             is_block[x]=true;
-            block.emplace_back(x,t,-1);
+            block.emplace_back(x,t,-1,0);
         }
     }
 }
@@ -73,22 +74,19 @@ void output_to_file(const char* file_name){
 
 }
 
-int main() {
+int main(int argc, char* argv[]) {
     Graph G("./data/weibo500");
     std::mt19937 rng;
     rng.seed(std::random_device()());
     G.generateLogin(rng);
     std::uniform_int_distribution uid(0, G.V - 1);
-    int alpha = 10;
-//    if (0) {
-//        std::set<int> R;
-//        while (R.size() < 30) {
-//            R.insert(uid(rng));
-//        }
-//        TIBSolver tib(G, R, alpha);
-//        tib.solve(rng, 30);
-//        debug(Phi()(rng, G, R, tib.Z, alpha), Phi()(rng, G, R, {}, alpha));
-//    }
+    char **ch;
+    int alpha = strtol(argv[1], ch, 10);
+    int K = strtol(argv[2],ch,10);
+    int everyK = strtol(argv[3],ch,10);
+    int rr = strtol(argv[4],ch,10);
+    int S = strtol(argv[5],ch,10);
+    int everyS = strtol(argv[6],ch,10);
 
     is_block.insert(is_block.end(), G.V, false);
     is_rumor.insert(is_rumor.end(), G.V, false);
@@ -97,24 +95,35 @@ int main() {
 
     MultiRoundSolver mul(G), test(G);
     std::vector<Spread> ret, tmp;
-    for (int i = 0; i < 25; i += 1) {
+    for (int k = 0; k < S; k += 1) {
+        int u = uid(rng);
+        mul.setRumor(u);
+        test.setRumor(u);
+        ret.emplace_back(-1,u,-1,RUMOR);
+    }
+    calc(ret, mul.Z, 0);
+    for (int i = 1; i <= rr; i += 1) {
         ret.clear();
         debug(i);
-        for (int k = 0; k < 20; k += 1) {
+        for (int k = 0; k < everyS; k += 1) {
             int u = uid(rng);
             mul.setRumor(u);
             test.setRumor(u);
             ret.emplace_back(-1,u,-1,RUMOR);
         }
-        mul.solve(rng, 10, alpha);
+
+        if(i==1) mul.solve(rng,K,alpha);
+        mul.solve(rng,everyK,alpha);
         test.solve(rng, 0, alpha);
         mul.simulate(rng, alpha, ret);
         test.simulate(rng, alpha, tmp);
 
+
         calc(ret, mul.Z, i);
         debug(mul.count(RUMOR), test.count(RUMOR));
         debug(mul.count(TRUTH), test.count(TRUTH));
+        debug(std::count(mul.G.spreaded.begin(),mul.G.spreaded.end(),2),std::count(test.G.spreaded.begin(),test.G.spreaded.end(),2));
         debug("");
     }
-    output_to_file("output.txt");
+    output_to_file(argv[7]);
 }

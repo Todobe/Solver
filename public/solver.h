@@ -23,7 +23,7 @@ struct Simulation {
     std::vector<STATUS> status;
     Graph G;
     void simulate(std::mt19937& rng, const Graph& G, const std::set<int>& R, const std::set<int>& Z, int alpha, std::vector<Spread> &ret, bool verbose = false);
-    void simulate(std::mt19937& rng, Graph& G, std::vector<bool>& spreaded, std::vector<STATUS>& status, int alpha, std::vector<Spread> &ret, bool verbose = false);
+    void simulate(std::mt19937& rng, Graph& G, std::vector<int>& spreaded, std::vector<STATUS>& status, int alpha, std::vector<Spread> &ret, bool verbose = false);
     int count(STATUS s) const;
 };
 

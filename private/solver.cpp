@@ -18,7 +18,7 @@ void Simulation::simulate(std::mt19937& rng, const Graph& G, const std::set<int>
     }
     simulate(rng, this->G, this->G.spreaded, status, alpha, ret, verbose);
 }
-void Simulation::simulate(std::mt19937& rng, Graph& G, std::vector<bool>& spreaded, std::vector<STATUS>& status, int alpha, std::vector<Spread> &ret, bool verbose) {
+void Simulation::simulate(std::mt19937& rng, Graph& G, std::vector<int>& spreaded, std::vector<STATUS>& status, int alpha, std::vector<Spread> &ret, bool verbose) {
     std::uniform_real_distribution urd;
     for (int time = 1; time <= alpha; time += 1) {
         std::vector<bool> logined(G.V);
@@ -28,8 +28,9 @@ void Simulation::simulate(std::mt19937& rng, Graph& G, std::vector<bool>& spread
         for (STATUS s : {TRUTH, RUMOR}) {
             for (int i = 0; i < G.E; i += 1) {
                 auto [u, v, p] = G.edges[i];
-                if (not spreaded[i] and logined[v] and status[u] == s) {
-                    spreaded[i] = true;
+                if (((s == TRUTH && spreaded[i]!=2) || (s==RUMOR && spreaded[i]==0) )and logined[v] and status[u] == s and status[v]!=TRUTH) {
+                    if(s==TRUTH) spreaded[i]=2;
+                    else spreaded[i] = 1;
                     if (urd(rng) < p) {
                         if (verbose) {
                             std::cout << (s == RUMOR ? "Rumor" : "Truth") << " from " << u << " to " << v << " at " << time << std::endl;
@@ -337,14 +338,15 @@ void MultiRoundSolver::solve(std::mt19937& rng, int k, int alpha) {
     int K = Z.size() + k;
     extendZ(K, alpha);
     std::uniform_int_distribution uid(0, G.V - 1);
-    for (int i = 0; i < K and Z.size() < K; i += 1) {
+    for (int i = 0; Z.size() < K; i += 1) {
         Z.insert(uid(rng));
     }
 }
 
 void MultiRoundSolver::simulate(std::mt19937& rng, int alpha, std::vector<Spread> &ret) {
     for (int u : Z) {
-        if (status[u] == INACTIVE) {
+        //if (status[u] == INACTIVE) {
+        if(status[u]!=TRUTH) {
             status[u] = TRUTH;
             ret.emplace_back(-1,u,-1,TRUTH);
         }
