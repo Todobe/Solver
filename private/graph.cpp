@@ -1,6 +1,7 @@
 #include "graph.h"
 
 #include <fstream>
+#include <functional>
 
 Graph::Graph() {
     
@@ -14,7 +15,7 @@ Graph::Graph(const std::string& path) {
     inEdges.resize(V);
     outEdges.resize(V);
     login.resize(V);
-    for (int i = 0; i < E; i += 1) {
+    for (int i = 0; i < E; i ++) {
         auto& [u, v, p] = edges[i];
         fin >> u >> v;
         inEdges[v].push_back(i);
@@ -22,14 +23,14 @@ Graph::Graph(const std::string& path) {
     }
     for (int i = 0; i < E; i += 1) {
         if (inEdges[edges[i].v].size()) {
-            edges[i].p = 1.0 / inEdges[edges[i].v].size();
+            edges[i].p =std::max(0.2, 1.0 / inEdges[edges[i].v].size());
         }
     }
 
 }
 
 void Graph::generateLogin(std::mt19937& rng) {
-    std::uniform_real_distribution urd;
+    std::uniform_real_distribution<> urd(0.2, 1);
     for (double& p : login) p = urd(rng);
 }
 

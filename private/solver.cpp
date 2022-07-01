@@ -25,7 +25,7 @@ void Simulation::simulate(std::mt19937& rng, Graph& G, std::vector<int>& spreade
         for (int i = 0; i < G.V; i += 1) {
             logined[i] = urd(rng) < G.login[i];
         }
-        for (STATUS s : {TRUTH, RUMOR}) {
+        for (STATUS s : {RUMOR,TRUTH}) {
             for (int i = 0; i < G.E; i += 1) {
                 auto [u, v, p] = G.edges[i];
                 if (((s == TRUTH && spreaded[i]!=2) || (s==RUMOR && spreaded[i]==0) )and logined[v] and status[u] == s and status[v]!=TRUTH) {

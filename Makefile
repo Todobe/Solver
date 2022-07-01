@@ -19,9 +19,12 @@ main.o: main.cpp
 	$(CXX) $(INCLUDE) $(CFLAGS) -c main.cpp -o main.o
 
 run: main
-	./main 2 0 0 5 5 1 1_200551_none.txt
-	./main 2 5 0 5 5 1 1_250551_static.txt
-	./main 2 0 1 5 5 1 1_201551_dynamic.txt
+	./main 1 0 0 5 5 2 5 9_2005515_none.txt
+	./main 1 5 0 5 5 2 5 9_2505515_static.txt
+	./main 1 0 1 5 5 2 5 9_2015515_dynamic.txt
+#	./main 5 0 0 10 20 3 5 us_none.txt
+#	./main 5 50 0 10 20 3 5 us_static.txt
+#	./main 5 0 5 10 20 3 5 us_dynamic.txt
 
 clean:
 	rm *.o

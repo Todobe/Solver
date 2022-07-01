@@ -21,7 +21,7 @@ void calc(const std::vector<Spread> &ret, const std::set<int> &Z, int t){
                   is_truth[it.v]=false;
                   rumor.emplace_back(it.v,t,it.u,it.t);
                   if(it.u==-1){
-                      std::cout<<it.u<<" "<<it.v<<" "<<t<<" rumor"<<std::endl;
+                     // std::cout<<it.u<<" "<<it.v<<" "<<t<<" rumor"<<std::endl;
                   }
               }
               break;
@@ -31,7 +31,7 @@ void calc(const std::vector<Spread> &ret, const std::set<int> &Z, int t){
                   is_rumor[it.v]=false;
                   truth.emplace_back(it.v,t,it.u,it.t);
                   if(it.u==-1){
-                      std::cout<<it.u<<" "<<it.v<<" "<<t<<" truth"<<std::endl;
+                      //std::cout<<it.u<<" "<<it.v<<" "<<t<<" truth"<<std::endl;
                   }
               }
               break;
@@ -75,11 +75,18 @@ void output_to_file(const char* file_name){
 }
 
 int main(int argc, char* argv[]) {
-    Graph G("./data/weibo500");
+    Graph G("./data/graph200.in");
     std::mt19937 rng;
     rng.seed(std::random_device()());
+    //rng.seed(12);
     G.generateLogin(rng);
-    std::uniform_int_distribution uid(0, G.V - 1);
+    int threshold=10;
+    std::vector<int> bigNodes;
+    for(int i=0;i<G.V;i++){
+        if(G.outEdges[i].size()>=threshold) bigNodes.emplace_back(i);
+    }
+    std::uniform_int_distribution uid(0, int(bigNodes.size()) - 1);
+    std::cout<<"bignodes:"<<bigNodes.size()<<std::endl;
     char **ch;
     int alpha = strtol(argv[1], ch, 10);
     int K = strtol(argv[2],ch,10);
@@ -87,6 +94,7 @@ int main(int argc, char* argv[]) {
     int rr = strtol(argv[4],ch,10);
     int S = strtol(argv[5],ch,10);
     int everyS = strtol(argv[6],ch,10);
+    int setRumorRound = strtol(argv[7],ch,10);
 
     is_block.insert(is_block.end(), G.V, false);
     is_rumor.insert(is_rumor.end(), G.V, false);
@@ -96,34 +104,43 @@ int main(int argc, char* argv[]) {
     MultiRoundSolver mul(G), test(G);
     std::vector<Spread> ret, tmp;
     for (int k = 0; k < S; k += 1) {
-        int u = uid(rng);
+        int t = uid(rng);
+        while(bigNodes[t]==-1){
+            t = uid(rng);
+        }
+        int u=bigNodes[t];
+        bigNodes[t]=-1;
         mul.setRumor(u);
-        test.setRumor(u);
         ret.emplace_back(-1,u,-1,RUMOR);
     }
     calc(ret, mul.Z, 0);
     for (int i = 1; i <= rr; i += 1) {
         ret.clear();
         debug(i);
-        for (int k = 0; k < everyS; k += 1) {
-            int u = uid(rng);
-            mul.setRumor(u);
-            test.setRumor(u);
-            ret.emplace_back(-1,u,-1,RUMOR);
+
+        if(i<=setRumorRound) {
+            for (int k = 0; k < everyS; k += 1) {
+                int t = uid(rng);
+                while (bigNodes[t] == -1) {
+                    t = uid(rng);
+                }
+                int u = bigNodes[t];
+                bigNodes[t] = -1;
+                mul.setRumor(u);
+                test.setRumor(u);
+                ret.emplace_back(-1, u, -1, RUMOR);
+            }
         }
 
         if(i==1) mul.solve(rng,K,alpha);
         mul.solve(rng,everyK,alpha);
-        test.solve(rng, 0, alpha);
         mul.simulate(rng, alpha, ret);
-        test.simulate(rng, alpha, tmp);
 
 
         calc(ret, mul.Z, i);
-        debug(mul.count(RUMOR), test.count(RUMOR));
-        debug(mul.count(TRUTH), test.count(TRUTH));
-        debug(std::count(mul.G.spreaded.begin(),mul.G.spreaded.end(),2),std::count(test.G.spreaded.begin(),test.G.spreaded.end(),2));
+        debug(mul.count(RUMOR), mul.count(TRUTH));
+        debug(std::count(mul.G.spreaded.begin(),mul.G.spreaded.end(),1),std::count(mul.G.spreaded.begin(),mul.G.spreaded.end(),2));
         debug("");
     }
-    output_to_file(argv[7]);
+    output_to_file(argv[8]);
 }
